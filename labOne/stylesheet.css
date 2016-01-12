@@ -1,0 +1,105 @@
+#navigationBar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+}
+
+body{
+	overflow:auto;
+	font-family: "Verdana", sans-serif;
+	background-color: rgb(176,205,92)
+}
+
+#navigationBar li {
+    float:left;
+    text-align: center;
+    border-right: solid 1px rgb(176,205,92);
+
+}
+
+pre{
+	/*overflow: scroll;*/
+}
+
+#topContainer{
+	height: 200px;
+}
+
+#pageContainer{
+	width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#banner {
+    float: left;
+    width: 75%;
+    height:100%;
+    /*dark blue*/
+    background-color: rgb(1,89,134);
+    overflow: hidden;
+
+}
+
+#myName{
+	float:right;
+	width: 25%;
+	height: 100%;
+	/*light blue*/
+	background-color: rgb(31,160,192);
+}
+
+#myname h3{
+    font-size: 40;
+    color: black;
+}
+
+#navigationBar{
+	width: 100%;
+	/*orange*/
+	background-color:rgb(245,123,32);
+	height:34px;
+}
+
+#bannerImage {
+    margin-left: -180px;
+    margin-top: -75;
+}
+
+
+#navigationBar li a {
+	padding: 0.5em 2em 0.5em 2em;
+    display: block;
+    color: black;
+    text-decoration: none;
+}
+
+#navigationBar li a:hover {
+    background-color: rgb(245,123,32);
+    /*orange*/
+    color: white;
+}
+
+#navigationBar li:active{
+	background-color: black;
+	/*Green*/
+	color:rgb(176,205,92);
+}
+
+/*input{
+	display:block;
+}*/
+
+label{
+	display:block;
+}
+
+table{
+    border: 2px solid rgb(245,123,32);
+}
+
+table, td{
+	width: 300px;
+    text-align: center;
+}
