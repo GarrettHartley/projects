@@ -56,13 +56,13 @@ pre {
 
 #myname h3{
     font-size: 40;
-    color: black;
+    color:rgb(1,89,134);
 }
 
 #navigationBar{
 	width: 100%;
 	/*orange*/
-	background-color:rgb(245,123,32);
+	background-color:rgb(1,89,134);
 	height:34px;
 }
 
@@ -75,7 +75,7 @@ pre {
 #navigationBar li a {
 	padding: 0.5em 2em 0.5em 2em;
     display: block;
-    color: black;
+    color: #B0CD5C;
     text-decoration: none;
 }
 
