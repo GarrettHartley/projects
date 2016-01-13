@@ -18,8 +18,12 @@ body{
 
 }
 
-pre{
-	/*overflow: scroll;*/
+pre {
+    white-space: pre-wrap;       /* CSS 3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 #topContainer{
@@ -87,6 +91,9 @@ pre{
 	color:rgb(176,205,92);
 }
 
+
+
+
 /*input{
 	display:block;
 }*/
@@ -102,4 +109,32 @@ table{
 table, td{
 	width: 300px;
     text-align: center;
+}
+
+@media screen and (max-width: 700px) {
+    
+    #pageContainer {
+        width: 395px;
+    }
+
+    #banner{
+    	width: 100%;
+    }
+
+    #myName {
+	float:none;
+	width: 0%;
+	height: 100%;
+	/*light blue*/
+	background-color: rgb(31,160,192);
+	}
+
+    #myname h3 {
+    	position: relative;
+    	font-size: 20;
+    	color: white;
+    	top: -200px;
+    	left: 210px;
+    	width:200px;
+ 	}	
 }
