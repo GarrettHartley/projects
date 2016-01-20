@@ -7,13 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <iostream>
 #define SOCKET_ERROR        -1
 #define BUFFER_SIZE         300
 #define HOST_NAME_SIZE      255
 int  main(int argc, char* argv[])
 {
+	//	cout<<"hello";
 	int hSocket;                 /* handle to socket */
 	struct hostent* pHostInfo;   /* holds info about a machine */
+
 	struct sockaddr_in Address;  /* Internet socket address stuct */
 	long nHostAddress;
 	char pBuffer[BUFFER_SIZE];
@@ -49,6 +52,15 @@ int  main(int argc, char* argv[])
 		}
 		strcpy(strPageName, argv[optind+2]);
 		strcpy(strHostName,argv[optind]);
+		char c ='0';
+
+		int err = 0;
+		for(int i=0;i<strlen(argv[optind+1]);i++){
+			if(argv[optind+1][i]<47|| argv[optind+1][i]>57){
+				printf("\nError: Invalid port, port must be an integer.\n");
+				exit(0);
+			}
+		}
 		nHostPort=atoi(argv[optind+1]);
 	}
 	//printf("times to download: %d",times_to_download);
@@ -66,6 +78,10 @@ int  main(int argc, char* argv[])
 		}
 		/* get IP address from name */
 		pHostInfo=gethostbyname(strHostName);
+		if(pHostInfo == NULL){
+			printf("\nERROR: no such hostname\n");
+			exit(0);
+		}
 		/* copy address into long */
 		memcpy(&nHostAddress,pHostInfo->h_addr,pHostInfo->h_length);
 		/* fill address struct */
@@ -97,13 +113,20 @@ int  main(int argc, char* argv[])
 				}
 				const char s[2]="\n";
 				char* tokens = strtok(pBuffer,"\n");
-				int line = 1;
+				int count = 1;
 				while(tokens !=NULL){
+
 					tokens= strtok(NULL,s);
-					line++;
-					if(line == 7){
-						char* line;
-						line = tokens;
+					char* line;
+					line = tokens;
+
+					if(line == NULL){
+						break;
+					}
+					if(NULL!=strstr(line,"Content-Length")){
+						//if(count==6){
+
+
 						int lengthFromHeader;
 						int success = sscanf(line,"Content-Length: %d",&lengthFromHeader);
 						int rval;
@@ -113,35 +136,47 @@ int  main(int argc, char* argv[])
 								write(1,pBuffer,rval);
 							}
 						}
-					} 
-				}
-			}
-			index++;	
-		}
-		nReadAmount=read(hSocket,pBuffer,BUFFER_SIZE);
-		/*	printf("Response: %s\n ", pBuffer);
-			printf("%s", message);
-		/* read from socket into buffer
-		 ** number returned by read() and write() is the number of bytes
-		 ** read or written, with -1 being that an error occured */
-		nReadAmount=read(hSocket,pBuffer,BUFFER_SIZE);
-		/*    printf("\nReceived \"%s\" from server\n",pBuffer);
-		      printf("%u",nReadAmount);	
-		/* write what we received back to the server */
-		write(hSocket,pBuffer,nReadAmount);
-		/*    printf("\nWriting \"%s\" to server",pBuffer);
-		      printf("\nClosing socket\n");
-		/* close socket */                       
-		if(close(hSocket) == SOCKET_ERROR)
-		{
-			printf("\nCould not close socket\n");
-			return 0;
-		}
-		succesfullDownloads++;
-		if(!print){
-			printf("\n Successful Download Count: %d\n",succesfullDownloads);
-		}
 
+					}
+					count++; 
+
+					}
+					free(tokens);
+				}
+				index++;	
+			}
+			nReadAmount=read(hSocket,pBuffer,BUFFER_SIZE);
+		/*	if(debug){
+
+				printf("Response: %s\n ", pBuffer);
+				printf("%s", message);
+			}			
+			/* read from socket into buffer
+			 ** number returned by read() and write() is the number of bytes
+			 ** read or written, with -1 being that an error occured */
+			nReadAmount=read(hSocket,pBuffer,BUFFER_SIZE);
+		/*	if(debug){
+
+				printf("\nReceived \"%s\" from server\n",pBuffer);
+				printf("%u",nReadAmount);	
+			}		
+			/* write what we received back to the server */
+			write(hSocket,pBuffer,nReadAmount);
+		/*	if(debug){
+				printf("\nWriting \"%s\" to server",pBuffer);
+				printf("\nClosing socket\n");
+			}
+			/* close socket */                       
+			if(close(hSocket) == SOCKET_ERROR)
+			{
+				printf("\nCould not close socket\n");
+				return 0;
+			}
+			succesfullDownloads++;
+			if(!print){
+				printf("\n Successful Download Count: %d\n",succesfullDownloads);
+			}
+
+		}
+		// End loop
 	}
-	// End loop
-}
