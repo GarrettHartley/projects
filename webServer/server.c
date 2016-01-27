@@ -177,6 +177,10 @@ int serve(int hSocket, char* rootDirectory){
 	if(stat(absolutePath, &filestat)==-1) {
 		cout <<"ERROR in stat\n";
 		perror("stat");
+		
+		memset(pBuffer,0,strlen(pBuffer));
+		sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n\r\n<html><body><h3>404 Error Page Not Found</h3></body></html>\n");
+		write(hSocket, pBuffer, strlen(pBuffer));
 	}
 	else if(S_ISREG(filestat.st_mode)) {
 		sprintf (filesize, "%zd", filestat.st_size);
