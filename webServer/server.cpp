@@ -1,6 +1,5 @@
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
@@ -11,15 +10,12 @@
 #include <vector>
 #include <sstream>
 #include <string>
-#include <dirent.h>
-#include <fstream>
 
 #define SOCKET_ERROR        -1
 #define BUFFER_SIZE         10000
 #define MESSAGE             "This is the message I'm sending back and forth"
 #define QUEUE_SIZE          5
 #define MAX_MSG_SZ      	1024
-
 using namespace std;
 
 
@@ -149,101 +145,66 @@ void GetHeaderLines(vector<char *> &headerLines, int skt, bool envformat)
 
 
 int serve(int hSocket, char* rootDirectory){
-	char pBuffer[BUFFER_SIZE];
-	char filesize[7];
-	char headerBuffer[BUFFER_SIZE];
 	char contentType[MAX_MSG_SZ];
   	vector<char *> headerLines; 
 
-// Get the path from line with Get
+// First read the status line
     char *startline = GetLine(hSocket);
-    cout<<"startline";
-    cout<< startline;
-    char* tokens = strtok(startline," ");
-    cout<<endl;
-    cout<<"path : ";
-   	char* path = strtok(NULL," ");
-    cout<< path;
-    cout<<"\n";
+    string buffer;
+    stringstream ss(*startline);
+    vector<string> tokens;
+    
+    while (ss >> buffer){
+    	tokens.push_back(buffer);
+    }
 
-	char* absolutePath = (char *) malloc(1+strlen(path)+strlen(rootDirectory));
-	strcpy(absolutePath, rootDirectory);
-	strcat(absolutePath, path);	
-	cout<<"absolutePath: ";
-	cout<<absolutePath;
-	cout<<endl;
+  printf("Status line %s\n\n",startline);
 
-	struct stat filestat;
-	if(stat(absolutePath, &filestat)==-1) {
-		cout <<"ERROR in stat\n";
-		perror("stat");
-	}
-	else if(S_ISREG(filestat.st_mode)) {
-		sprintf (filesize, "%zd", filestat.st_size);
-		cout << absolutePath << " is a regular file \n";
-		cout << "file size = "<<filestat.st_size <<"\n";
-		
-		strcpy(headerBuffer, "HTTP/1.1 200 OK\r\nContent-Length: ");
-		strcat(headerBuffer, filesize);
-		strcat(headerBuffer, "\r\nContent-Type: ");
-		if(strstr(path,".html")){
-			strcat(headerBuffer,"text/html\n");
-		}else if(strstr(path,".txt")){
-			strcat(headerBuffer,"text/plain\n");
-		}else if(strstr(path,".jpg")){
-			strcat(headerBuffer,"image/jpg\n");
-		}else if(strstr(path,".gif")){
-			strcat(headerBuffer,"image/gif\n");
-		}
-		cout<<"File HEADER: ";
-		cout<<endl;
-		cout<< headerBuffer;
-		// strcat(headerBuffer, )
-		
-		strcat (headerBuffer, "Connection: keep-alive\r\n\r\n");
-		write(hSocket,headerBuffer,strlen(headerBuffer));		
+  printf("URL FROM TOKENS: ");
+  cout<<(tokens[1]);
+
+  // Read the header lines
+    GetHeaderLines(headerLines, hSocket , false);
+
+  
+  // Now print them out
+  for (int i = 0; i < headerLines.size(); i++) {
+    printf("[%d] %s\n",i,headerLines[i]);
+    if(strstr(headerLines[i], "Content-Type")) {
+             sscanf(headerLines[i], "Content-Type: %s", contentType);
+    }
+  }
 
 
-		FILE *fp = fopen(absolutePath,"r");
-		char *buff = (char *)malloc(filestat.st_size+1);
+//		struct stat filestat;
 
-		fread(buff,filestat.st_size, 1, fp);
-		cout<<"FILE"<<endl<<buff<<endl;
-	
-		fclose(fp);
-		write(hSocket,buff,filestat.st_size);
-		free(buff);
-	}
-	else if(S_ISDIR(filestat.st_mode)) {
-		char directoryOutput[BUFFER_SIZE];
-		cout << absolutePath << " is a directory \n";
-		DIR *dirp;
-		struct dirent *dp;
-		//	Write links HERE
-		memset(directoryOutput,0,strlen(directoryOutput));
-		
-		strcpy(directoryOutput,"<html><body><h2><strong>Index of");
-		strcat(directoryOutput, path);
-		strcat(directoryOutput,"</strong></h2><br><ul>");
-		
-		dirp = opendir(absolutePath);
-		while ((dp = readdir(dirp)) != NULL){
-			cout<<"name "<< dp->d_name<<endl;
-			strcat(directoryOutput, "<li><a href='");
-			// strcat(directoryOutput, absolutePath);
-			strcat(directoryOutput,"/");
-			strcat(directoryOutput,dp->d_name);
-			strcat(directoryOutput,"'>");
-			strcat(directoryOutput,dp->d_name);
-			strcat(directoryOutput,"</li>");
-		}
-		strcat(directoryOutput,"</ul></body></html>");
-		(void)closedir(dirp);	
+//argv[1] is the the url
+	// if(stat(argv[1], &filestat)) {
+	// 	cout <<"ERROR in stat\n";
+	// }
+	// if(S_ISREG(filestat.st_mode)) {
+	// 	cout << argv[1] << " is a regular file \n";
+	// 	cout << "file size = "<<filestat.st_size <<"\n";
+	// 	FILE *fp = fopen(argv[1],"r");
+	// 	char *buff = (char *)malloc(filestat.st_size+1);
+	// 	fread(buff,filestat.st_size, 1, fp);
+	// 	cout<<"FILE"<<endl<<buff<<endl;
+	// 	free(buff);
+	// 	fclose(fp);
+	// }
+	// if(S_ISDIR(filestat.st_mode)) {
+	// 	cout << argv[1] << " is a directory \n";
+	// 	DIR *dirp;
+	// 	struct dirent *dp;
 
-		memset(pBuffer,0,strlen(pBuffer));
-		sprintf(pBuffer, "HTTP/1.1 200 OK\r\n\r\n%s\n", directoryOutput);
-		write(hSocket, pBuffer, strlen(pBuffer));
-	}
+	// 	dirp = opendir(argv[1]);
+
+	// 		Write links HERE
+
+	// 	while ((dp = readdir(dirp)) != NULL)
+	// 		cout<<"name"<< dp->d_name<<endl;
+	// 	(void)closedir(dirp);	
+	// }
 
 			return 0;
 }
