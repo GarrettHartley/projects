@@ -149,6 +149,7 @@ void GetHeaderLines(vector<char *> &headerLines, int skt, bool envformat)
 
 
 int serve(int hSocket, char* rootDirectory){
+	cout<<"SERVE";
 	char pBuffer[BUFFER_SIZE];
 	char filesize[7];
 	char headerBuffer[BUFFER_SIZE];
@@ -214,9 +215,10 @@ int serve(int hSocket, char* rootDirectory){
 		fread(buff,filestat.st_size, 1, fp);
 		cout<<"FILE"<<endl<<buff<<endl;
 	
-		fclose(fp);
+	
 		write(hSocket,buff,filestat.st_size);
-		free(buff);
+		free(buff);	
+		fclose(fp);
 	}
 	else if(S_ISDIR(filestat.st_mode)) {
 		char directoryOutput[BUFFER_SIZE];
@@ -328,7 +330,7 @@ int main(int argc, char* argv[])
 		printf("\nGot a connection from %X (%d)\n",
 				Address.sin_addr.s_addr,
 				ntohs(Address.sin_port));
-
+		cout<<endl<<" after got connection "<<endl;
 		serve(hSocket, argv[2]);
 
 		linger lin;
