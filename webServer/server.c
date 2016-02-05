@@ -337,13 +337,16 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+// create all the threads	
+
 	for(;;)
 	{
 		printf("\nWaiting for a connection\n");
 		/* get the connected socket */
 		hSocket=accept(hServerSocket,(struct sockaddr*)&Address,(socklen_t *)&nAddressSize);
 
-
+// push hSocket on to the queue
+// create thread
 		printf("\nGot a connection from %X (%d)\n",
 				Address.sin_addr.s_addr,
 				ntohs(Address.sin_port));

@@ -24,14 +24,13 @@ public:
 		sem_post(&on_q);
 	}
 	int pop (){
-cout<<"pop ";
-		 sem_wait(&to_do);
-		 sem_wait(&mutex);
+		sem_wait(&to_do);
+		sem_wait(&mutex);
 		int rval = stlqueue.front();
 		stlqueue.pop();
 	
-		 sem_post(&mutex);
-		 sem_post(&on_q);
+		sem_post(&mutex);
+		sem_post(&on_q);
 		return(rval);
 
 	}
@@ -39,12 +38,20 @@ cout<<"pop ";
 } sockqueue;
 
 void *serve(void *arg){
+
 	cout<<"inside the serve function";
 	int tid;
 	tid = (long)arg;
 	printf("Hi %d\n", tid);
 	for(;;){
+
+// serve files 
 		cout<< "GOT: "<<sockqueue.pop()<<endl;
+
+
+
+
+		
 	}
 }
 
@@ -73,6 +80,8 @@ int main(){
 	 	cout<<"should create a thread"<<endl;
 		pthread_create(&threads[threadid],0,serve,(void *)&threadid);	
  }
+
+
 sleep(5);
 
 }
