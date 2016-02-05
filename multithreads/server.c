@@ -17,7 +17,7 @@
 #include <queue>
 #include <semaphore.h>
 
-sem_t on_q, to_do, mutex;
+sem_t full, empty, mutex;
 
 #define SOCKET_ERROR        -1
 #define BUFFER_SIZE         10000
@@ -37,20 +37,20 @@ public:
 	void push(int sock){
 			 
 //	cout<<"in push ";
-		sem_wait(&on_q);
+		sem_wait(&empty);
 		sem_wait(&mutex);
 		stlqueue.push(sock);
 		sem_post(&mutex);
-		sem_post(&on_q);
+		sem_post(&full);
 	}
 	int pop (){
-		sem_wait(&to_do);
+		sem_wait(&full);
 		sem_wait(&mutex);
 		int rval = stlqueue.front();
 		stlqueue.pop();
 	
 		sem_post(&mutex);
-		sem_post(&on_q);
+		sem_post(&empty);
 		return(rval);
 
 	}
@@ -163,7 +163,7 @@ void *serveThread(void *arg){
 	// int tid;
 	// tid = (long)arg;
 	// printf("Hi %d\n", tid);
-/*	for(;;){
+	for(;;){
 
 // serve files 
 	int socketToServeTo = -1;
@@ -171,7 +171,21 @@ void *serveThread(void *arg){
 
 	serve(socketToServeTo);
 
-	}*/
+		linger lin;
+		unsigned int y= sizeof(lin);
+		lin.l_onoff=1;
+		lin.l_linger=10;
+		setsockopt(hSocket,SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
+		shutdown(hSocket, SHUT_RDWR);
+		printf("\nClosing the socket");
+
+		if(close(hSocket) == SOCKET_ERROR)
+		{
+			printf("\nCould not close socket\n");
+			return 0;
+		}
+
+	}
 }
 
 
@@ -186,9 +200,9 @@ int main(int argc, char* argv[])
 	long threadid;
 	pthread_t threads[NTHREADS];
 
-	sem_init(&on_q,0,NQUEUE);
-	sem_init(&to_do,0,0);
-	sem_init(&mutex,0,1);
+	sem_init(&full,PTHREAD_PROCESS_PRIVATE,0);
+	sem_init(&empty,PTHREAD_PROCESS_PRIVATE,NQUEUE);
+	sem_init(&mutex,PTHREAD_PROCESS_PRIVATE,1);
 
 	if(argc < 3)
 	{
@@ -254,37 +268,25 @@ int main(int argc, char* argv[])
 	}
 
 // create all the threads	
-	
+	for(int threadid = 0; threadid <NTHREADS; threadid++){
+		pthread_create(&threads[threadid],0,serveThread,(void *)&threadid);
+	}
 
 	for(;;)
 	{
 		printf("\nWaiting for a connection\n");
 		/* get the connected socket */
 		hSocket=accept(hServerSocket,(struct sockaddr*)&Address,(socklen_t *)&nAddressSize);
-
-// push hSocket on to the queue
-		sockqueue.push(hSocket);
-// create thread
 		printf("\nGot a connection from %X (%d)\n",
 				Address.sin_addr.s_addr,
 				ntohs(Address.sin_port));
+// push hSocket on to the queue
+		sockqueue.push(hSocket);
 
-		 serve(hSocket);
+		//serve(hSocket);
 
-		pthread_create(&threads[threadid],0,serveThread,(void *)&threadid);
+		
 
-		linger lin;
-		unsigned int y= sizeof(lin);
-		lin.l_onoff=1;
-		lin.l_linger=10;
-		setsockopt(hSocket,SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
-		shutdown(hSocket, SHUT_RDWR);
-		printf("\nClosing the socket");
 
-		if(close(hSocket) == SOCKET_ERROR)
-		{
-			printf("\nCould not close socket\n");
-			return 0;
-		}
 	}
 }

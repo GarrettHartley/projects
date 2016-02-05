@@ -7,7 +7,7 @@
 #include <iostream>
 
 
-sem_t on_q, to_do, mutex;
+sem_t full, empty, mutex;
 
 using namespace std;
 
@@ -17,20 +17,20 @@ public:
 	void push(int sock){
 			 
 //	cout<<"in push ";
-		sem_wait(&on_q);
+		sem_wait(&full);
 		sem_wait(&mutex);
 		stlqueue.push(sock);
 		sem_post(&mutex);
-		sem_post(&on_q);
+		sem_post(&full);
 	}
 	int pop (){
-		sem_wait(&to_do);
+		sem_wait(&empty);
 		sem_wait(&mutex);
 		int rval = stlqueue.front();
 		stlqueue.pop();
 	
 		sem_post(&mutex);
-		sem_post(&on_q);
+		sem_post(&full);
 		return(rval);
 
 	}
@@ -62,8 +62,8 @@ int main(){
 	long threadid;
 	pthread_t threads[NTHREADS];
 	
-	sem_init(&on_q,0,NQUEUE);
-	sem_init(&to_do,0,0);
+	sem_init(&full,0,NQUEUE);
+	sem_init(&empty,0,0);
 	sem_init(&mutex,0,1);	
 
 	for(int i = 0; i<NQUEUE; i++){
