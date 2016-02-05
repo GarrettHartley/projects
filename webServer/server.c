@@ -149,38 +149,49 @@ void GetHeaderLines(vector<char *> &headerLines, int skt, bool envformat)
 
 
 int serve(int hSocket, char* rootDirectory){
-	cout<<"SERVE";
 	char pBuffer[BUFFER_SIZE];
 	char filesize[7];
 	char headerBuffer[BUFFER_SIZE];
 	char contentType[MAX_MSG_SZ];
-  	vector<char *> headerLines; 
+	struct stat filestat;
+  	// vector<char *> headerLines; 
 
 // Get the path from line with Get
-    char *startline = GetLine(hSocket);
-    cout<<"startline";
-    cout<< startline;
-    char* tokens = strtok(startline," ");
-    cout<<endl;
-    cout<<"path : ";
-   	char* path = strtok(NULL," ");
-    cout<< path;
-    cout<<"\n";
+    // char *startline = GetLine(hSocket);
+    // cout<<"startline";
+    // cout<< startline;
+    // char* tokens = strtok(startline," ");
+    // cout<<endl;
+    // cout<<"path : ";
+   	// char* path = strtok(NULL," ");
+    // cout<< path;
+    // cout<<"\n";
+    
+    read(hSocket,pBuffer,BUFFER_SIZE);
+    printf("\nGot From browser \n%s\n",pBuffer);
+    char url[BUFFER_SIZE];
+    char absolutePath[BUFFER_SIZE];
+    strcpy(absolutePath, rootDirectory)
+    if(strstr(pBuffer, "GET")){
+    	scanf(pBuffer, "GET %s",url)
+    }
+    strcat(absolutePath,url);
 
-	char* absolutePath = (char *) malloc(1+strlen(path)+strlen(rootDirectory));
-	strcpy(absolutePath, rootDirectory);
-	strcat(absolutePath, path);	
-	cout<<"absolutePath: ";
-	cout<<absolutePath;
-	cout<<endl;
 
-	struct stat filestat;
+	// char* absolutePath = (char *) malloc(1+strlen(path)+strlen(rootDirectory));
+	// strcpy(absolutePath, rootDirectory);
+	// strcat(absolutePath, path);	
+	// cout<<"absolutePath: ";
+	// cout<<absolutePath;
+	// cout<<endl;
+
+
 	if(stat(absolutePath, &filestat)==-1) {
-		cout <<"ERROR in stat\n";
+		cout <<"ERROR in stat\r\n";
 		perror("stat");
 		
 		memset(pBuffer,0,strlen(pBuffer));
-		sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n\r\n<html><body><h3>404 Error Page Not Found</h3></body></html>\n");
+		sprintf(pBuffer, "HTTP/1.1 404 Not Found\r\n\r\n<html><body><h3>404 Error Page Not Found</h3></body></html>\r\n");
 		write(hSocket, pBuffer, strlen(pBuffer));
 	}
 	else if(S_ISREG(filestat.st_mode)) {
@@ -191,14 +202,14 @@ int serve(int hSocket, char* rootDirectory){
 		strcpy(headerBuffer, "HTTP/1.1 200 OK\r\nContent-Length: ");
 		strcat(headerBuffer, filesize);
 		strcat(headerBuffer, "\r\nContent-Type: ");
-		if(strstr(path,".html")){
-			strcat(headerBuffer,"text/html\n");
-		}else if(strstr(path,".txt")){
-			strcat(headerBuffer,"text/plain\n");
-		}else if(strstr(path,".jpg")){
-			strcat(headerBuffer,"image/jpg\n");
-		}else if(strstr(path,".gif")){
-			strcat(headerBuffer,"image/gif\n");
+		if(strstr(url,".html")){
+			strcat(headerBuffer,"text/html\r\n");
+		}else if(strstr(url,".txt")){
+			strcat(headerBuffer,"text/plain\r\n");
+		}else if(strstr(url,".jpg")){
+			strcat(headerBuffer,"image/jpg\r\n");
+		}else if(strstr(url,".gif")){
+			strcat(headerBuffer,"image/gif\r\n");
 		}
 		cout<<"File HEADER: ";
 		cout<<endl;
@@ -210,15 +221,14 @@ int serve(int hSocket, char* rootDirectory){
 
 
 		FILE *fp = fopen(absolutePath,"r");
-		char *buff = (char *)malloc(filestat.st_size+1);
+		char *buff = (char *)malloc(filestat.st_size);
 
 		fread(buff,filestat.st_size, 1, fp);
 		cout<<"FILE"<<endl<<buff<<endl;
 	
-	
-		write(hSocket,buff,filestat.st_size);
-		free(buff);	
 		fclose(fp);
+		write(hSocket,buff,strlen(buff));
+		free(buff);
 	}
 	else if(S_ISDIR(filestat.st_mode)) {
 		char directoryOutput[BUFFER_SIZE];
@@ -291,6 +301,10 @@ int main(int argc, char* argv[])
 
 	printf("\nBinding to port %d",nHostPort);
 
+
+ 	int optval = 1;
+    setsockopt(hServerSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
 	/* bind to a port */
 	if(bind(hServerSocket,(struct sockaddr*)&Address,sizeof(Address)) 
 			== SOCKET_ERROR)
@@ -299,6 +313,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	/*  get port number */
+
 	getsockname( hServerSocket, (struct sockaddr *) &Address,(socklen_t *)&nAddressSize);
 	printf("opened socket as fd (%d) on port (%d) for stream i/o\n",hServerSocket, ntohs(Address.sin_port) );
 
@@ -330,7 +345,7 @@ int main(int argc, char* argv[])
 		printf("\nGot a connection from %X (%d)\n",
 				Address.sin_addr.s_addr,
 				ntohs(Address.sin_port));
-		cout<<endl<<" after got connection "<<endl;
+
 		serve(hSocket, argv[2]);
 
 		linger lin;
