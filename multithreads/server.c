@@ -57,24 +57,6 @@ public:
 
 } sockqueue;
 
-void *serveThread(void *arg){
-
-	// cout<<"inside the serve function";
-	// int tid;
-	// tid = (long)arg;
-	// printf("Hi %d\n", tid);
-	for(;;){
-
-// serve files 
-	int socketToServeTo = -1;
-	socketToServeTo = sockqueue.pop();
-
-	serve(socketToServeTo, rootDirectory);
-
-	}
-}
-
-
 int serve(int hSocket){
 	char pBuffer[BUFFER_SIZE];
 	char filesize[7];
@@ -174,6 +156,25 @@ int serve(int hSocket){
 			return 0;
 }
 
+
+void *serveThread(void *arg){
+
+	// cout<<"inside the serve function";
+	// int tid;
+	// tid = (long)arg;
+	// printf("Hi %d\n", tid);
+/*	for(;;){
+
+// serve files 
+	int socketToServeTo = -1;
+	socketToServeTo = sockqueue.pop();
+
+	serve(socketToServeTo);
+
+	}*/
+}
+
+
 int main(int argc, char* argv[])
 {
 	int hSocket,hServerSocket;  /* handle to socket */
@@ -181,7 +182,13 @@ int main(int argc, char* argv[])
 	struct sockaddr_in Address; /* Internet socket address struct */
 	int nAddressSize=sizeof(struct sockaddr_in);
 	int nHostPort;
-	rootDirectory = argv[2]
+	rootDirectory = argv[2];
+	long threadid;
+	pthread_t threads[NTHREADS];
+
+	sem_init(&on_q,0,NQUEUE);
+	sem_init(&to_do,0,0);
+	sem_init(&mutex,0,1);
 
 	if(argc < 3)
 	{
@@ -247,6 +254,7 @@ int main(int argc, char* argv[])
 	}
 
 // create all the threads	
+	
 
 	for(;;)
 	{
@@ -255,15 +263,15 @@ int main(int argc, char* argv[])
 		hSocket=accept(hServerSocket,(struct sockaddr*)&Address,(socklen_t *)&nAddressSize);
 
 // push hSocket on to the queue
-		sockQueue.push(hSocket);
+		sockqueue.push(hSocket);
 // create thread
 		printf("\nGot a connection from %X (%d)\n",
 				Address.sin_addr.s_addr,
 				ntohs(Address.sin_port));
 
-		// serve(hSocket,argv[2]);
+		 serve(hSocket);
 
-		pthread_create(&threads[threadid],0,serve,(void *)&threadid);
+		pthread_create(&threads[threadid],0,serveThread,(void *)&threadid);
 
 		linger lin;
 		unsigned int y= sizeof(lin);
