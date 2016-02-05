@@ -171,13 +171,14 @@ int serve(int hSocket, char* rootDirectory){
     printf("\nGot From browser \n%s\n",pBuffer);
     char url[BUFFER_SIZE];
     char absolutePath[BUFFER_SIZE];
-    strcpy(absolutePath, rootDirectory)
+    cout<<"before strcpy";
+	strcpy(absolutePath, rootDirectory);
     if(strstr(pBuffer, "GET")){
-    	scanf(pBuffer, "GET %s",url)
+    	sscanf(pBuffer, "GET %s",url);
     }
     strcat(absolutePath,url);
 
-
+cout<<"built path";
 	// char* absolutePath = (char *) malloc(1+strlen(path)+strlen(rootDirectory));
 	// strcpy(absolutePath, rootDirectory);
 	// strcat(absolutePath, path);	
@@ -195,6 +196,7 @@ int serve(int hSocket, char* rootDirectory){
 		write(hSocket, pBuffer, strlen(pBuffer));
 	}
 	else if(S_ISREG(filestat.st_mode)) {
+		
 		sprintf (filesize, "%zd", filestat.st_size);
 		cout << absolutePath << " is a regular file \n";
 		cout << "file size = "<<filestat.st_size <<"\n";
@@ -221,13 +223,13 @@ int serve(int hSocket, char* rootDirectory){
 
 
 		FILE *fp = fopen(absolutePath,"r");
-		char *buff = (char *)malloc(filestat.st_size);
+		char *buff = (char *)malloc(filestat.st_size+1);
 
 		fread(buff,filestat.st_size, 1, fp);
 		cout<<"FILE"<<endl<<buff<<endl;
 	
 		fclose(fp);
-		write(hSocket,buff,strlen(buff));
+		write(hSocket,buff,filestat.st_size);
 		free(buff);
 	}
 	else if(S_ISDIR(filestat.st_mode)) {
@@ -239,7 +241,7 @@ int serve(int hSocket, char* rootDirectory){
 		memset(directoryOutput,0,strlen(directoryOutput));
 		
 		strcpy(directoryOutput,"<html><body><h2><strong>Index of");
-		strcat(directoryOutput, path);
+		strcat(directoryOutput, url);
 		strcat(directoryOutput,"</strong></h2><br><ul>");
 		
 		dirp = opendir(absolutePath);
