@@ -175,11 +175,11 @@ void *serveThread(void *arg){
 		unsigned int y= sizeof(lin);
 		lin.l_onoff=1;
 		lin.l_linger=10;
-		setsockopt(hSocket,SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
-		shutdown(hSocket, SHUT_RDWR);
+		setsockopt(socketToServeTo,SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
+		shutdown(socketToServeTo, SHUT_RDWR);
 		printf("\nClosing the socket");
 
-		if(close(hSocket) == SOCKET_ERROR)
+		if(close(socketToServeTo) == SOCKET_ERROR)
 		{
 			printf("\nCould not close socket\n");
 			return 0;
