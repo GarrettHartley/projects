@@ -42,6 +42,11 @@ int  main(int argc, char* argv[])
         nHostPort=atoi(argv[2]);
       }
 
+    NSOCKETS = atoi(argv[3])
+
+    print("NSOCKETS: ")
+    print(NSOCKETS)
+
     printf("\nMaking a socket");
     /* make a socket */
 	for(int i = 0; i < NSOCKETS; i++) {
@@ -76,7 +81,7 @@ int  main(int argc, char* argv[])
 		}
 		char request[] = "GET /test.html HTTP/1.0\r\n\r\n";
 
-	    	write(hSocket[i],request,strlen(request));
+	    write(hSocket[i],request,strlen(request));
 		struct epoll_event event;
 		event.data.fd = hSocket[i];
 		event.events = EPOLLIN;
