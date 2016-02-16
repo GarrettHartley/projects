@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #define SOCKET_ERROR        -1
-#define BUFFER_SIZE         100
+#define BUFFER_SIZE         10000
 #define MESSAGE             "This is the message I'm sending back and forth"
 #define QUEUE_SIZE          5
 
@@ -88,22 +88,14 @@ int main(int argc, char* argv[])
         printf("\nGot a connection from %X (%d)\n",
               Address.sin_addr.s_addr,
               ntohs(Address.sin_port));
-        strcpy(pBuffer,MESSAGE);
-        printf("\nSending \"%s\" to client",pBuffer);
-        /* number returned by read() and write() is the number of bytes
-        ** read or written, with -1 being that an error occured
-        ** write what we received back to the server */
-        write(hSocket,pBuffer,strlen(pBuffer)+1);
-        /* read from socket into buffer */
         memset(pBuffer,0,sizeof(pBuffer));
         read(hSocket,pBuffer,BUFFER_SIZE);
-
-        if(strcmp(pBuffer,MESSAGE) == 0)
-            printf("\nThe messages match");
-        else
-            printf("\nSomething was changed in the message");
+    printf("Got from browser \n%s\n", pBuffer);
 
     printf("\nClosing the socket");
+    memset(pBuffer,0,sizeof(pBuffer));
+    sprintf(pBuffer,"HTTP/1.1 200 OK\r\n\r\n<html>Hello</html>\n");
+    write (hSocket, pBuffer, strlen(pBuffer));
         /* close socket */
         if(close(hSocket) == SOCKET_ERROR)
         {
@@ -112,3 +104,4 @@ int main(int argc, char* argv[])
         }
     }
 }
+
