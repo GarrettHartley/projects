@@ -34,8 +34,8 @@ void handler (int status){
 #define MESSAGE             "This is the message I'm sending back and forth"
 #define QUEUE_SIZE          5
 #define MAX_MSG_SZ      	1024
-#define NQUEUE 20
-#define NTHREADS 10
+#define NQUEUE 1000
+#define NTHREADS 1000
 char* rootDirectory;
 
 
@@ -74,10 +74,10 @@ int serve(int hSocket){
 
     
     read(hSocket,pBuffer,BUFFER_SIZE);
-    printf("\nGot From browser \n%s\n",pBuffer);
+//    printf("\nGot From browser \n%s\n",pBuffer);
     char url[BUFFER_SIZE];
     char absolutePath[BUFFER_SIZE];
-    cout<<"before strcpy";
+ //   cout<<"before strcpy";
 	strcpy(absolutePath, rootDirectory);
     if(strstr(pBuffer, "GET")){
     	sscanf(pBuffer, "GET %s",url);
@@ -86,7 +86,7 @@ int serve(int hSocket){
 
 
 	if(stat(absolutePath, &filestat)==-1) {
-		cout <<"ERROR in stat\r\n";
+//		cout <<"ERROR in stat\r\n";
 		perror("stat");
 		
 		memset(pBuffer,0,strlen(pBuffer));
@@ -96,8 +96,8 @@ int serve(int hSocket){
 	else if(S_ISREG(filestat.st_mode)) {
 		
 		sprintf (filesize, "%zd", filestat.st_size);
-		cout << absolutePath << " is a regular file \n";
-		cout << "file size = "<<filestat.st_size <<"\n";
+//		cout << absolutePath << " is a regular file \n";
+//		cout << "file size = "<<filestat.st_size <<"\n";
 		
 		strcpy(headerBuffer, "HTTP/1.1 200 OK\r\nContent-Length: ");
 		strcat(headerBuffer, filesize);
@@ -111,9 +111,9 @@ int serve(int hSocket){
 		}else if(strstr(url,".gif")){
 			strcat(headerBuffer,"image/gif\r\n");
 		}
-		cout<<"File HEADER: ";
-		cout<<endl;
-		cout<< headerBuffer;
+//		cout<<"File HEADER: ";
+//		cout<<endl;
+//		cout<< headerBuffer;
 		// strcat(headerBuffer, )
 		
 		strcat (headerBuffer, "Connection: keep-alive\r\n\r\n");
@@ -124,7 +124,7 @@ int serve(int hSocket){
 		char *buff = (char *)malloc(filestat.st_size+1);
 
 		fread(buff,filestat.st_size, 1, fp);
-		cout<<"FILE"<<endl<<buff<<endl;
+//		cout<<"FILE"<<endl<<buff<<endl;
 	
 		fclose(fp);
 		write(hSocket,buff,filestat.st_size);
@@ -132,7 +132,7 @@ int serve(int hSocket){
 	}
 	else if(S_ISDIR(filestat.st_mode)) {
 		char directoryOutput[BUFFER_SIZE];
-		cout << absolutePath << " is a directory \n";
+//		cout << absolutePath << " is a directory \n";
 		DIR *dirp;
 		struct dirent *dp;
 		//	Write links HERE
@@ -185,11 +185,11 @@ void *serveThread(void *arg){
 		lin.l_linger=10;
 		setsockopt(socketToServeTo,SOL_SOCKET, SO_LINGER, &lin, sizeof(lin));
 		shutdown(socketToServeTo, SHUT_RDWR);
-		printf("\nClosing the socket");
+//		printf("\nClosing the socket");
 
 		if(close(socketToServeTo) == SOCKET_ERROR)
 		{
-			printf("\nCould not close socket\n");
+//			printf("\nCould not close socket\n");
 			return 0;
 		}
 
@@ -236,9 +236,9 @@ int main(int argc, char* argv[])
 		nHostPort=atoi(argv[1]);
 	}
 
-	printf("\nStarting server");
-
-	printf("\nMaking socket");
+//	printf("\nStarting server");
+//
+//	printf("\nMaking socket");
 	/* make a socket */
 	hServerSocket=socket(AF_INET,SOCK_STREAM,0);
 
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 	Address.sin_port=htons(nHostPort);
 	Address.sin_family=AF_INET;
 
-	printf("\nBinding to port %d",nHostPort);
+//	printf("\nBinding to port %d",nHostPort);
 
 
  	int optval = 1;
@@ -269,23 +269,23 @@ int main(int argc, char* argv[])
 	/*  get port number */
 
 	getsockname( hServerSocket, (struct sockaddr *) &Address,(socklen_t *)&nAddressSize);
-	printf("opened socket as fd (%d) on port (%d) for stream i/o\n",hServerSocket, ntohs(Address.sin_port) );
+//	printf("opened socket as fd (%d) on port (%d) for stream i/o\n",hServerSocket, ntohs(Address.sin_port) );
 
-	printf("Server\n\
+//	printf("Server\n\
 			sin_family        = %d\n\
 			sin_addr.s_addr   = %d\n\
 			sin_port          = %d\n"
-			, Address.sin_family
-			, Address.sin_addr.s_addr
-			, ntohs(Address.sin_port)
-	      );
+//			, Address.sin_family
+//			, Address.sin_addr.s_addr
+//			, ntohs(Address.sin_port)
+//	      );
 
 
-	printf("\nMaking a listen queue of %d elements",QUEUE_SIZE);
+//	printf("\nMaking a listen queue of %d elements",QUEUE_SIZE);
 	/* establish listen queue */
 	if(listen(hServerSocket,QUEUE_SIZE) == SOCKET_ERROR)
 	{
-		printf("\nCould not listen\n");
+//		printf("\nCould not listen\n");
 		return 0;
 	}
 
@@ -297,12 +297,12 @@ int main(int argc, char* argv[])
 
 	for(;;)
 	{
-		printf("\nWaiting for a connection\n");
+//		printf("\nWaiting for a connection\n");
 		/* get the connected socket */
 		hSocket=accept(hServerSocket,(struct sockaddr*)&Address,(socklen_t *)&nAddressSize);
-		printf("\nGot a connection from %X (%d)\n",
-				Address.sin_addr.s_addr,
-				ntohs(Address.sin_port));
+//		printf("\nGot a connection from %X (%d)\n",
+//				Address.sin_addr.s_addr,
+//				ntohs(Address.sin_port));
 // push hSocket on to the queue
 		sockqueue.push(hSocket);
 
