@@ -1,4 +1,4 @@
-
+  
 <html>
 <head>
 <title>City Finder</title>
@@ -8,7 +8,7 @@
 $(document).ready(function() {
 $( "#cityfield" ).keyup(function() {
 	$( "#cityfield" ).keyup(function() {
-var url = "https://students.cs.byu.edu/~clement/CS360/ajax/getcity.cgi?q="+$("#cityfield").val();
+    var url = "https://students.cs.byu.edu/~clement/CS360/ajax/getcity.cgi?q="+$("#cityfield").val();
 $.getJSON(url,function(data) {	
 var everything;
 	  everything = "<ul>";
@@ -31,7 +31,7 @@ e.preventDefault();
   var myurl= "https://api.wunderground.com/api/8dd83bc10d0724b3/geolookup/conditions/q/UT/";
   myurl += value;
   myurl += ".json";
-//  console.log(myurl);
+ console.log(myurl);
   $.ajax({
     url : myurl,
     dataType : "jsonp",
@@ -46,6 +46,16 @@ e.preventDefault();
 	$('#weather').html(weatherString)
 	 }
   });
+var url = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b2292415d3a357dc6ba93c0580e325d4&tags=yokota+air+base&safe_search=1&per_page=20";
+var src;
+$.getJSON(url + "&format=json&jsoncallback=?", function(data){
+    $.each(data.photos.photo, function(i,item){
+        src = "http://farm"+ item.farm +".static.flickr.com/"+ item.server +"/"+ item.id +"_"+ item.secret +"_m.jpg";
+        $("<img/>").attr("src", src).appendTo("#images");
+        if ( i == 3 ) return false;
+    });
+
+});
 
 });
 
@@ -64,6 +74,6 @@ Suggestion: <span id="txtHint">Empty</span>
 <textarea id="dispcity">No City</textarea>
 <p>Current Weather</p>
 <div id="weather">No weather</div>
-
+<div id ="images"></div>
 </body>
 </html>
