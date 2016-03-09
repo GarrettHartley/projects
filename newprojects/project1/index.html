@@ -6,7 +6,7 @@
 <script>
 
 $(document).ready(function() {
-$( "#cityfield" ).keyup(function() {
+
 	$( "#cityfield" ).keyup(function() {
     var url = "https://students.cs.byu.edu/~clement/CS360/ajax/getcity.cgi?q="+$("#cityfield").val();
 $.getJSON(url,function(data) {	
@@ -22,7 +22,7 @@ var everything;
 $("#txtHint").text("Keyup "+$("#cityfield").val());
 });
 
-});
+
 
 $("#button").click(function(e){
   var value = $("#cityfield").val();
@@ -46,15 +46,23 @@ e.preventDefault();
 	$('#weather').html(weatherString)
 	 }
   });
-var url = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b2292415d3a357dc6ba93c0580e325d4&tags=yokota+air+base&safe_search=1&per_page=20";
+var searchCityImages = value.replace(" ","+")
+console.log("search city images: "+searchCityImages)
+var url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b2292415d3a357dc6ba93c0580e325d4&tags="+searchCityImages+"+Utah&safe_search=1&per_page=20";
 var src;
+console.log("images url: "+url)
 $.getJSON(url + "&format=json&jsoncallback=?", function(data){
-    $.each(data.photos.photo, function(i,item){
+console.log('test') 
+$("#images").empty() 
+count = 0
+//This each loop code comes from tutorial on stack overflow http://stackoverflow.com/questions/2513417/jquery-getjson-how-do-i-parse-a-flickr-photos-search-rest-api-call
+  $.each(data.photos.photo, function(i,item){
         src = "http://farm"+ item.farm +".static.flickr.com/"+ item.server +"/"+ item.id +"_"+ item.secret +"_m.jpg";
         $("<img/>").attr("src", src).appendTo("#images");
-        if ( i == 3 ) return false;
+        count+=1
+	if ( i == 9 ) return false;
     });
-
+$("#imageQuery").text("Searched for "+value+" Utah. Found at least "+count+" results.")
 });
 
 });
@@ -74,6 +82,8 @@ Suggestion: <span id="txtHint">Empty</span>
 <textarea id="dispcity">No City</textarea>
 <p>Current Weather</p>
 <div id="weather">No weather</div>
+<h2>My additional REST Service displays the first 10 image results for a search of the Utah City on Flickr</h2>
+<h1 id = 'imageQuery'>No results. You have not searched yet.</h1>
 <div id ="images"></div>
 </body>
 </html>
