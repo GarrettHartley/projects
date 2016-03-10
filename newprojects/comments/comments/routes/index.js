@@ -11,6 +11,13 @@ var commentSchema = mongoose.Schema({ //Defines the Schema for this database
   Comment: String
 });
 
+var videoSchema = mongoose.Schema({
+  VideoName: String,
+  url: String,
+})
+
+var Video = mongoose.model('Video',videoSchema);
+
 var Comment = mongoose.model('Comment', commentSchema); //Makes an object from that schema as a model
 
 var db = mongoose.connection; //Saves the connection as a variable to use
@@ -44,5 +51,30 @@ router.get('/comments', function(req, res, next) {
     }
   })
 });
+
+router.post('/video', function(req, res, next) {
+  console.log("POST video route"); //[1]
+  console.log(req.body);
+  
+  var newcomment = new Comment(req.body); //[3]
+  console.log(newcomment); //[3]
+    newcomment.save(function(err, post) { //[4]
+      if (err) return console.error(err);
+        console.log(post);
+      res.sendStatus(200);
+  });
+});
+
+router.get('/videos',function(req,res,next)){
+  console.log("in the Videos Get route");
+  Video.find(function(err,videoList){
+    if(err) return console.error(err);
+    else {
+      console.log(videoList);
+      res.json(videoList);
+    }
+  })
+
+}
 
 module.exports = router;
