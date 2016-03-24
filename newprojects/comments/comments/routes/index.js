@@ -68,7 +68,7 @@ router.post('/video', function(req, res, next) {
 router.get('/videos',function(req,res,next)){
   console.log("in the Videos Get route");
   Video.find(function(err,videoList){
-    if(err) return console.error(err);
+    if(err) return console.error("ERROR:"+err);
     else {
       console.log(videoList);
       res.json(videoList);
